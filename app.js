@@ -3,8 +3,8 @@ const express = require('express'),
       mongoose = require('mongoose')
 
 // routes
-const indexRoutes = require('./routes/index');
-const todoRoutes = require('./routes/todo');
+const indexRoutes = require('./routes/index'),
+      todoRoutes = require('./routes/todo')
 
 // mongoose connect
 mongoose.Promise = global.Promise;
@@ -30,3 +30,6 @@ app.use('/todos', todoRoutes);
 app.listen(3000, () => {
   console.log('Started on port 3000');
 });
+
+// per test 
+// module.exports = {app}

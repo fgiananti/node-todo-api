@@ -6,6 +6,15 @@ const express = require('express'),
 
 router.use(bodyParser.json());
 
+//  GET: /todos
+router.get('/', (req, res) => {
+  ToDo.find().then((todos) => {
+    res.send({todos});
+  }, (e) => {
+    res.status(400).send(e);
+  });
+});
+
 //  POST: /todos
 router.post('/', (req, res) => {
 
@@ -20,5 +29,9 @@ router.post('/', (req, res) => {
   });
 
 });
+
+
+
+
 
 module.exports = router
