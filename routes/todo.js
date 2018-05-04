@@ -2,7 +2,9 @@ const express = require('express'),
       router = express.Router(),
       bodyParser = require('body-parser'),
       {ToDo} = require('../models/todo'), // collection
-      {ObjectID} = require('mongodb')
+      {ObjectID} = require('mongodb'),
+      _ = require('lodash')
+
 
 
 router.use(bodyParser.json());
@@ -65,11 +67,35 @@ router.post('/', (req, res) => {
   }, (err) => {
     res.status(400).send(err);
   });
-
 });
 
+// UPDATE: /todos/:id
+// scenario: request di tipo update su /todos/:id con body contenente JSON con text ... e completed
+router.patch('/:id', (req, res) => {
+  if (!ObjectID.isValid(req.params.id)) {
+    return res.status(404).send();
+  };
+  // _.pick() è lodash! questo metodo permette di estrarre dall'oggetto req.body le sue proprietà text e completed per immagazinarle in una variabile (sotto forma di oggetto) chiamasi "subset".
+  // text e completed sono i due campi che vogliamo poter aggiornare
+  let body = _.pick(req.body, ['text', 'completed']);
 
+  // se body.completed è boolean ed è true => impostiamo completedAt. se false il contrario.
+  if (_.isBoolean(body.completed) && body.completed) {
+    body.completedAt = new Date().getTime();
+  } else {
+    body.completed = false;
+    body.completedAt = null;
+  }
 
-
+  //$set-$new operatori mongoose richiesti da findByIdAndUpdate
+  ToDo.findByIdAndUpdate(req.params.id, {$set: body}, {$new: true}).then((todo) => {
+    if (!todo) {
+      return res.status(404).send();
+    }
+    res.send({todo});
+  }).catch((e) => {
+    res.status(400).send();
+  })
+});
 
 module.exports = router
