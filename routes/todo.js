@@ -35,6 +35,24 @@ router.get('/:id', (req, res) => {
     res.status(400).send();
   });
 });
+
+router.delete('/:id', (req , res) => {
+  if (!ObjectID.isValid(req.params.id)) {
+    return res.status(404).send();
+  };
+
+  ToDo.findByIdAndRemove(req.params.id).then((removed) => {
+    if (!removed) {
+      return res.status(404).send();
+    }
+    res.send({removed});
+  }).catch((e) => {
+    res.status(400).send();
+  });
+});
+
+
+
 //  POST: /todos
 // inviando questa request con body json con struttura come da Schema ToDo => aggiunta todo
 router.post('/', (req, res) => {
