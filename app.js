@@ -1,6 +1,7 @@
 const express = require('express'),
       app = express(),
-      mongoose = require('mongoose')
+      mongoose = require('mongoose'),
+      port = process.env.PORT || 3000;
 
 // routes
 const indexRoutes = require('./routes/index'),
@@ -8,7 +9,7 @@ const indexRoutes = require('./routes/index'),
 
 // mongoose connect
 mongoose.Promise = global.Promise;
-mongoose.connect('mongodb://localhost/ToDoApp');
+mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost/ToDoApp');
 
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
@@ -27,9 +28,9 @@ app.use('/', indexRoutes);
 app.use('/todos', todoRoutes);
 
 
-app.listen(3000, () => {
-  console.log('Started on port 3000');
+app.listen(port, () => {
+  console.log(`Started on port ${port}`);
 });
 
-// per test 
+// per test
 // module.exports = {app}
