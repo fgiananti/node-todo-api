@@ -1,13 +1,63 @@
-const mongoose = require('mongoose');
+const mongoose = require('mongoose'),
+      validator = require('validator'),
+      jwt = require('jsonwebtoken'),
+      _ = require('lodash')
 
 const UserSchema = mongoose.Schema({
   email: {
     type: String,
     minlength: 5,
     required: true,
-    trim: true
-  }
+    trim: true,
+    unique: true,
+    // utilizziamo package validator per verificare correttezza formale email
+    validate: {
+      validator: validator.isEmail,
+      message: '{VALUE} is not a valid email'
+    }
+  },
+  password: {
+    type: String,
+    require: true,
+    minlength: 6
+  },
+  // tokens: feature available in mongodb not available in SQL databases like postgres, generati con metodo sotto generateAuthToken
+  // USER TOKEN ARRAY
+  tokens: [{
+    access: {
+      type: String,
+      required: true
+    },
+    token: {
+      type: String,
+      required: true
+    }
+  }]
 });
+
+UserSchema.methods.toJSON = function () {
+  let user = this;
+  let userObject = user.toObject();
+
+  return _.pick(userObject, ['_id', 'email'])
+}
+
+
+// UserSchema.methods = oggetto che possiamo utilizzare per aggiungere metodi custom alla collection
+UserSchema.methods.generateAuthToken = function() {
+  let user = this;
+  let access = 'auth';
+  // {_id: user._id.toHexString(), access} data we want to sign
+  let token = jwt.sign({_id: user._id.toHexString(), access}, 'abc123').toString();
+
+  //update the user token array (struttura sopra)
+  user.tokens = user.tokens.concat([{access, token}]);
+
+  return user.save().then(() => {
+    // se tutto ok ritorna token
+    return token;
+  })
+};
 
 const User = mongoose.model('User', UserSchema);
 

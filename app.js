@@ -5,7 +5,8 @@ const express = require('express'),
 
 // routes
 const indexRoutes = require('./routes/index'),
-      todoRoutes = require('./routes/todo')
+      todoRoutes = require('./routes/todo'),
+      userRoutes = require('./routes/user')
 
 // mongoose connect
 mongoose.Promise = global.Promise;
@@ -26,6 +27,7 @@ const {User} = require('./models/user');
 // import routes - url
 app.use('/', indexRoutes);
 app.use('/todos', todoRoutes);
+app.use('/users', userRoutes);
 
 
 app.listen(port, () => {
