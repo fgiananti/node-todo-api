@@ -39,4 +39,14 @@ router.post('/login', (req, res) => {
   });
 });
 
+// logout: ovviamente possiamo effettuare questa operazione solo se siamo loggati => middleware authenticate. removeToken la scriviamo noi => la impostiamo come promise
+router.delete('/me/token', authenticate, (req, res) => {
+  req.user.removeToken(req.token).then(() => {
+    res.status(200).send();
+  }, () => {
+    res.status(400).send();
+  })
+})
+
+
 module.exports = router

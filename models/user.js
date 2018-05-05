@@ -62,6 +62,18 @@ UserSchema.methods.generateAuthToken = function() {
   })
 };
 
+// istance method per log out
+UserSchema.methods.removeToken = function (token) {
+  let user = this;
+
+  // che cosa fa pull? se trova nel document un token ( ci possono essere diversi tipi di token a seconda dei livelli di autorizzazione) corrispondente a quello passato alla funzione => esegue l'intero oggetto tokens (l'array)
+  return user.update({
+    $pull: {
+      tokens: {token}
+    }
+  });
+};
+
 // UserSchema.statics = oggetto che possiamo utilizzare per aggiungere metodi custom alla collection -> si chiamano model method
 UserSchema.statics.findByToken = function (token) {
   // in questo caso this è la collection
@@ -81,6 +93,7 @@ UserSchema.statics.findByToken = function (token) {
     'tokens.access': 'auth'
   });
 };
+
 
 
 UserSchema.statics.findByCredentials = function (email, password) {
