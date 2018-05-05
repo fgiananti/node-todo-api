@@ -82,6 +82,32 @@ UserSchema.statics.findByToken = function (token) {
   });
 };
 
+
+UserSchema.statics.findByCredentials = function (email, password) {
+  let User = this;
+  // checkiamo se utente esiste mediante email
+  return User.findOne({email}).then((user) => {
+    if (!user) {
+      return Promise.reject();
+    }
+    // se email => utente esiste:
+    // non si può fare così perhce bcrypt non supporta le promises
+    // bcrypt.compare
+    // bisogna fare così:
+    return new Promise((resolve, reject) => {
+      // Use bcrypt.compare to compare password and user.password
+      bcrypt.compare(password, user.password, (err, res) => {
+        if (res) {
+          resolve(user);
+        } else {
+          reject();
+        }
+      });
+    });
+  });
+};
+
+
 // .pre('save'...) mongoose middleware. ci permette di eseguire del codice prima di un determinato evento in mongodb... in questo caso il salvataggio di un document. runna automaticamente prima di user.save
 UserSchema.pre('save', function (next) {
   let user = this;
