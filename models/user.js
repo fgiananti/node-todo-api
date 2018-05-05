@@ -1,7 +1,8 @@
 const mongoose = require('mongoose'),
       validator = require('validator'),
       jwt = require('jsonwebtoken'),
-      _ = require('lodash')
+      _ = require('lodash'),
+      bcrypt = require('bcryptjs')
 
 const UserSchema = mongoose.Schema({
   email: {
@@ -81,7 +82,22 @@ UserSchema.statics.findByToken = function (token) {
   });
 };
 
+// .pre('save'...) mongoose middleware. ci permette di eseguire del codice prima di un determinato evento in mongodb... in questo caso il salvataggio di un document. runna automaticamente prima di user.save
+UserSchema.pre('save', function (next) {
+  let user = this;
 
+  // non vogliamo fare l'hashing della password ogni volta che un document viene modificato e quindi risalvato nel database (ad esempio modifica data di nascita) => impostiamo questo if
+  if (user.isModified('password')) {
+    bcrypt.genSalt(10, (err, salt) => {
+      bcrypt.hash(user.password, salt, (err, hash) => {
+        user.password = hash;
+        next();
+      })
+    })
+  } else {
+    next();
+  }
+});
 
 const User = mongoose.model('User', UserSchema);
 
