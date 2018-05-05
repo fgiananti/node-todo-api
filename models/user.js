@@ -35,6 +35,7 @@ const UserSchema = mongoose.Schema({
   }]
 });
 
+// permette di definire quali properties ritornare quando un oggetto document mongodb viene converito in JSON. serve per filtrare le risposte
 UserSchema.methods.toJSON = function () {
   let user = this;
   let userObject = user.toObject();
@@ -43,8 +44,9 @@ UserSchema.methods.toJSON = function () {
 }
 
 
-// UserSchema.methods = oggetto che possiamo utilizzare per aggiungere metodi custom alla collection
+// UserSchema.methods = oggetto che possiamo utilizzare per aggiungere metodi custom ai documents -> si chiamano instance method
 UserSchema.methods.generateAuthToken = function() {
+  // in questo caso this è il document secifico
   let user = this;
   let access = 'auth';
   // {_id: user._id.toHexString(), access} data we want to sign
@@ -58,6 +60,28 @@ UserSchema.methods.generateAuthToken = function() {
     return token;
   })
 };
+
+// UserSchema.statics = oggetto che possiamo utilizzare per aggiungere metodi custom alla collection -> si chiamano model method
+UserSchema.statics.findByToken = function (token) {
+  // in questo caso this è la collection
+  let User = this;
+  let decoded;
+
+  try {
+    decoded = jwt.verify(token, 'abc123');
+  } catch (e) {
+    return Promise.reject();
+  };
+
+  return User.findOne({
+    // quando nel nome c'è il punto (tokens.token) bisogna utilizzare '', per consistenza in questo caso utilizziamo le '' anche con _id
+    '_id' : decoded._id,
+    'tokens.token': token,
+    'tokens.access': 'auth'
+  });
+};
+
+
 
 const User = mongoose.model('User', UserSchema);
 

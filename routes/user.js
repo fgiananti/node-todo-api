@@ -2,7 +2,8 @@ const express = require('express'),
       router = express.Router(),
       bodyParser = require('body-parser'),
       {User} = require('../models/user'),
-      _ = require('lodash')
+      _ = require('lodash'),
+      {authenticate} = require('../middleware/authenticate')
 
 router.use(bodyParser.json());
 
@@ -19,7 +20,11 @@ router.post('/', (req, res) => {
   }).catch((err) => {
     res.status(400).send(err);
   })
+});
 
-})
+router.get('/me', authenticate, (req, res) => {
+  res.send(req.user);
+});
+
 
 module.exports = router
