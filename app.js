@@ -1,7 +1,9 @@
+// settaggio enviroment variables
+require('./config/config');
 const express = require('express'),
       app = express(),
       mongoose = require('mongoose'),
-      port = process.env.PORT || 3000;
+      port = process.env.PORT;
 
 // routes
 const indexRoutes = require('./routes/index'),
@@ -10,7 +12,8 @@ const indexRoutes = require('./routes/index'),
 
 // mongoose connect
 mongoose.Promise = global.Promise;
-mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost/ToDoApp');
+mongoose.connect(process.env.MONGODB_URI);
+
 
 const db = mongoose.connection;
 db.on('error', console.error.bind(console, 'connection error:'));
