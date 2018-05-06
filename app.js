@@ -1,8 +1,4 @@
 // settaggio enviroment variables
-console.log(process.env.MONGODB_URI)
-console.log(process.env.dbpass)
-console.log(process.env.dbuser)
-
 require('./config/config');
 const express = require('express'),
       app = express(),
